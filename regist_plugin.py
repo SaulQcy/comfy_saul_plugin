@@ -1,7 +1,7 @@
-from .video_cutting_node import VideoPathToWebPNode
+from .video_cutting_node import ComfyVideoCutting
 
 NODE_CLASS_MAPPINGS = {
-    "Cutting Video": VideoPathToWebPNode,
+    "Cutting Video": ComfyVideoCutting,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {

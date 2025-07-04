@@ -6,44 +6,40 @@ import imageio
 import torch
 import numpy as np
 import PIL
+from comfy.comfy_types.node_typing import IO, InputTypeDict
+from comfy.comfy_types.node_typing import ComfyNodeABC
+from comfy_api.input.video_types import VideoInput
+from comfy_api.input_impl.video_types import VideoFromFile
 
-class VideoPathToWebPNode:
-    def __init__(self):
-        pass
+
+
+class ComfyVideoCutting(ComfyNodeABC):
+
+    DESCRIPTION = 'Given a video input, output a cutting video (e.g., 50s -> 5s)'
+    CATEGORY = 'Video'
 
     @classmethod
-    def INPUT_TYPES(cls):
+    def INPUT_TYPES(s) -> InputTypeDict:
         return {
             "required": {
-                "input_path": ("STRING", {"default": "./video.mp4"}),
-                "start_second": ("FLOAT", {"default": 50.0, "min": 0.0, "max": 9999.0, "step": 0.1}),
-                "duration": ("FLOAT", {"default": 5.0, "min": 0.1, "max": 600.0, "step": 0.1}),
-                "output_name": ("STRING", {"default": "output.webp"}),
+                'video_in': (IO.VIDEO, {}),
+                't_min': (IO.FLOAT, {'min': 0., 'max': 1., 'step': 0.1, 'default': 0., }),
+                't_max': (IO.FLOAT, {'min': 0., 'max': 1., 'step': 0.1, 'default': 0.2, }),
             }
         }
+    
+    OUTPUT_NODE = False
+    RETURN_TYPES = (IO.IMAGE, )
+    RETURN_NAMES = ("video_out", )
 
-    RETURN_TYPES = ("IMAGE",)
-    RETURN_NAMES = ("output_images",)
-    FUNCTION = "convert_to_webp"
-    CATEGORY = "Saul-Plugin/Video"
+    FUNCTION = 'cutting_video'
 
-    def convert_to_webp(self, input_path: str, start_second: float, duration: float, output_name: str):
-        temp_cut = "/tmp/temp_cut.mp4"
-        output_webp = os.path.join("/tmp", output_name)
+    def cutting_video(self, video_in: VideoFromFile, t_min, t_max):
+        all_frames = video_in.get_components().images
+        l = len(all_frames)
+        t_min = int(l * t_min)
+        t_max = int(l * t_max)
+        res_frames = all_frames[t_min:t_max]
+        print(res_frames.shape)
+        return res_frames
 
-        # Step 1: Cut video using ffmpeg
-        subprocess.run([
-            "ffmpeg", "-y", "-ss", str(start_second), "-i", input_path,
-            "-t", str(duration), "-c:v", "libx264", "-c:a", "aac", temp_cut
-        ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        time.sleep(0.1)  # Wait for IO completion
-
-        # Step 2: Convert to .webp animation
-        subprocess.run([
-            "ffmpeg", "-y", "-i", temp_cut,
-            "-vf", "fps=10,scale=320:-1:flags=lanczos", "-loop", "0", output_webp
-        ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        time.sleep(0.1)
-
-        imgs = PIL.Image.open(output_webp)
-        return (imgs_np,)
