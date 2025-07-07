@@ -16,7 +16,7 @@ from comfy_api.input_impl.video_types import VideoFromFile
 class ComfyVideoCutting(ComfyNodeABC):
 
     DESCRIPTION = 'Given a video input, output a cutting video (e.g., 50s -> 5s)'
-    CATEGORY = 'Video'
+    CATEGORY = 'Saul'
 
     @classmethod
     def INPUT_TYPES(s) -> InputTypeDict:
