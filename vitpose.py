@@ -13,7 +13,7 @@ class VitPoseProcess(ComfyNodeABC):
     def INPUT_TYPES(s) -> InputTypeDict:
         return {
             'required': {
-                'image_in': (IO.ANY, {}),
+                'image_in': (IO.IMAGE, {}),
             }
         }
     

@@ -42,4 +42,6 @@ class ComfyVideoCutting(ComfyNodeABC):
         res_frames = all_frames[t_min:t_max]
         print(res_frames.shape)
         return res_frames
+    
+    
 
