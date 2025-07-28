@@ -25,7 +25,7 @@ def select_main_person(pose, img_w=1280, img_h=720):
             main = person
     return main
 
-def extract_keypoints(person, use=("face",)):
+def extract_keypoints(person, use=("face", "pose")):
     keypoints = []
     for part in use:
         key = {
@@ -47,8 +47,8 @@ def compute_pose_similarity(pose_A, pose_B):
     if person_A is None or person_B is None:
         return 0.0
 
-    kp1 = extract_keypoints(person_A, use=("face",))
-    kp2 = extract_keypoints(person_B, use=("face",))
+    kp1 = extract_keypoints(person_A)
+    kp2 = extract_keypoints(person_B)
 
     valid = (kp1[:, 2] > 0.1) & (kp2[:, 2] > 0.1)
     if np.sum(valid) < 3:

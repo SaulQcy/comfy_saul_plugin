@@ -74,5 +74,9 @@ class BlendImage(ComfyNodeABC):
         print(ret.shape)
         return ret,
 
-    
+
+def get_folder_file_name():
+    from datetime import datetime
+    folder_name = datetime.now().strftime("%Y%m%d_%H%M%S_%f")[:-3]
+    return folder_name
 

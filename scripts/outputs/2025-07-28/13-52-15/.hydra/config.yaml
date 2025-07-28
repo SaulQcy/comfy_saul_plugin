@@ -1,0 +1,12 @@
+positive: A middle-aged Asian man casually smoking a cigarette, taking slow deliberate
+  puffs with natural hand movements. Smoke swirls realistically around his face as
+  he exhales, with subtle facial expressions and occasional adjustments of the cigarette
+  between his fingers. The scene has cinematic lighting with soft smoke trails.
+negative: disappearing cigarette, cigarette leaving mouth, frozen frame, no smoke
+  movement, cigarette stuck to lips, floating cigarettes, distorted fingers, unnatural
+  hand gestures, smoke clipping through face, poor smoke physics, facial distortion,
+  blurred details, low resolution, frame interpolation artifacts, missing facial features,
+  smoke appearing/disappearing abruptly, jerky movements, unrealistic smoke density,
+  cigarette merging with skin
+people: /home/lior/datasets/dms/train/Manual_Full/meiling_Smoking/57F2616DBD34FBD1423D1E950D033FB9@Smoking@1745376029@3@6B4358E6BE5E301D49F39BD2B4528641.jpg
+cigarette: /home/saul/AIGC/cigarette/C43380CF0B394FFF322A7B9D69E9A65D.jpg

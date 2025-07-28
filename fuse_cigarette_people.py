@@ -22,8 +22,6 @@ class FuseCigarettePeople(ComfyNodeABC):
     FUNCTION = 'main'
 
     def main(self, image, keypoint, cigarette):
-        print(image.shape)
-        print(cigarette.shape)
         keypoint = keypoint[0].get('people')[0].get('face_keypoints_2d')
         face_kpts = np.array(keypoint).reshape(-1, 3)
         mouth_kpts = face_kpts[48:68, :2]  # 只取x, y
@@ -65,8 +63,7 @@ class FuseCigarettePeople(ComfyNodeABC):
             resized_cig,
             image[:, y_start:y_start + cig_h, x_start:x_start + cig_w, :]
         )
-
-
         if image.shape[0] == 1:
             image = image.unsqueeze(0)
+        print(f"fuse node output shape: {image.shape}")
         return image

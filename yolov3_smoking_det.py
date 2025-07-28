@@ -9,6 +9,11 @@ import torch.nn.functional as F
 from .smoking_utils.visualize import vis
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
+from custom_nodes.comfy_saul_plugin.img_tools import get_folder_file_name
+
+SMOKE_SCORE_THRESHOLD=0.5
+P_START=0.1
+P_END=0.1
 
 class SmokingAutoLabel(ComfyNodeABC):
 
@@ -29,9 +34,12 @@ class SmokingAutoLabel(ComfyNodeABC):
 
     def main(self, image_in: torch.Tensor) -> tuple[torch.Tensor, ]:
         # make dir to store generated data
+        print(f"det node input shape: {image_in.shape}")
         path = '/home/saul/AIGC/generated_data/smoking'
         root_path = f'{path}/{get_folder_file_name()}'
         os.makedirs(root_path, exist_ok=False)
+        if len(image_in.shape) == 3:
+            image_in = image_in.unsqueeze(0)
         if isinstance(image_in, torch.Tensor):
             if image_in.dim() == 4:
                 if image_in.shape[1] == 3:  # NCHW → NHWC
@@ -40,7 +48,11 @@ class SmokingAutoLabel(ComfyNodeABC):
                     raise ValueError(f"Unexpected tensor shape: {image_in.shape}")
             else:
                 raise ValueError(f"Expected 4D tensor, got {image_in.dim()}D")
-        image_in = image_in[int(image_in.shape[0] * 0.25):-int(image_in.shape[0] * 0.25)]
+        print(f"In frames: {image_in.shape[0]}")
+        if image_in.shape[0] > 20:  # avoid tensor shape like [0, H, W, C]
+            image_in = image_in[int(image_in.shape[0] * P_START):-int(image_in.shape[0] * P_END)]
+        print(f"Out frames: {image_in.shape[0]}")
+
         # load model
         exp = Exp()
         model = exp.get_model()
@@ -49,7 +61,7 @@ class SmokingAutoLabel(ComfyNodeABC):
         model.eval()
         model.cuda()
         # image_in = image_in.cuda()
-        _, C, H, W = image_in.shape
+        N_, C, H, W = image_in.shape
         mean = (0.5, 0.5, 0.5)
         std = (0.5, 0.5, 0.5)
         img_padding, r = preproc(image_in, (640, 640), mean, std)
@@ -57,11 +69,12 @@ class SmokingAutoLabel(ComfyNodeABC):
         # avoid OOM
         # res = model(img_padding.clone().permute(0, 3, 1, 2).cuda())
         results = []
+        # print(img_padding.squeeze().shape)
         for i in range(img_padding.shape[0]):
             img = img_padding[i].clone().permute(2, 0, 1).unsqueeze(0).cuda()  # [1, 3, H, W]
-            with torch.no_grad():  # 加入 no_grad 防止额外显存使用
+            with torch.no_grad():  
                 out = model(img)
-            results.append(out.cpu())  # 若后续不立即用，可以转 CPU 节省 GPU 显存
+            results.append(out.cpu()) 
         res = torch.cat(results, dim=0)
 
         outputs = postprocess(
@@ -81,12 +94,12 @@ class SmokingAutoLabel(ComfyNodeABC):
             bboxes /= ratio
             cls = y[:, 6]
             scores = y[:, 4] * y[:, 5]
-            if torch.mean(scores).item() < 0.8:
+            if torch.mean(scores).item() < SMOKE_SCORE_THRESHOLD:
                 continue
 
             x = np.array(x)
             x = np.ascontiguousarray(x)
-            print(np.max(x), np.min(x), x.shape, type(x))
+            # print(np.max(x), np.min(x), x.shape, type(x))
 
             vis_res = vis(x, bboxes, scores, cls, 0.3, DETECT_CLASSES)
             vis_res = torch.from_numpy(vis_res)
@@ -95,7 +108,7 @@ class SmokingAutoLabel(ComfyNodeABC):
             img_original = image_in[i].permute(2, 0, 1)
             torchvision.utils.save_image(img_original, f'{root_path}/{file_name}.jpg')
             image_size = image_in[i].shape  # width, height, depth
-            print(cls)
+            # print(cls)
             boxes = []
             for i in range(cls.shape[0]):
                 boxes.append(
@@ -107,6 +120,7 @@ class SmokingAutoLabel(ComfyNodeABC):
                 f.write(xml_content)
             res.append(vis_res)
         res = torch.stack(res, dim=0)
+        print(f"Final frames: {res.shape[0]}")
         return res,
 
 
@@ -169,11 +183,6 @@ DETECT_CLASSES = (
     "phone", 
     "antistatic_cap"
 )
-
-def get_folder_file_name():
-    from datetime import datetime
-    folder_name = datetime.now().strftime("%Y%m%d_%H%M%S_%f")[:-3]
-    return folder_name
 
 
 

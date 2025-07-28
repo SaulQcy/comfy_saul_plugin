@@ -1,0 +1,13 @@
+positive: A realistic person smoking a cigarette, natural mouth movement, hand holding
+  the cigarette near lips, smooth inhale and exhale motion, relaxed posture, subtle
+  head movement, clear facial details, warm lighting, cinematic style
+negative: disappearing cigarette, cigarette leaving mouth, frozen frame, no smoke
+  movement, cigarette stuck to lips, floating cigarettes, distorted fingers, unnatural
+  hand gestures, smoke clipping through face, poor smoke physics, facial distortion,
+  blurred details, low resolution, frame interpolation artifacts, missing facial features,
+  smoke appearing/disappearing abruptly, jerky movements, unrealistic smoke density,
+  cigarette merging with skin, fog, smoke cloud, blur, glitch, distorted hands, extra
+  limbs, missing fingers, low quality, bad anatomy, unrealistic pose, duplicate, disfigured,
+  poorly drawn, out of frame, watermark, text, unnatural expression
+people: /home/lior/datasets/dms/train/Manual_Full/walkie-talkie_data/D2E43CD97D9C9B4E026DD695AC9E1201@1695402257@2@D0312EAA73209337CB6A4B1BF3ACB8F8.jpg
+cigarette: /home/saul/AIGC/cigarette/C43380CF0B394FFF322A7B9D69E9A65D.jpg

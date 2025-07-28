@@ -1,16 +1,23 @@
-from PIL import Image
-import numpy as np
-import os
-import torch
+# from custom_nodes.comfyui_controlnet_aux.node_wrappers.dwpose import DWPose_Preprocessor
+# import PIL.Image
+# import numpy as np
+# import torch
 
-folder = '/home/saul/AIGC/sleep_pose_video/'
-file_ls = [f'{folder}/{f}' for f in os.listdir(folder) if f.endswith('.webp')]
-print(file_ls)
-ret = {}
-for f in file_ls:
-    x = Image.open(f).convert("RGB")
-    x = np.array(x).astype(float) / 255.
-    x = torch.from_numpy(x)
-    ret[f] = x
+# pose_processor = DWPose_Preprocessor()
 
-print(ret)
+# img = PIL.Image.open('/home/saul/comfy/ComfyUI/custom_nodes/comfyui_controlnet_aux/examples/comfyui-controlnet-aux-logo.png').convert('RGB')
+# x_np = np.array(img).astype(float) / 255.
+# x = torch.from_numpy(x_np)
+# x = x.unsqueeze(0)
+
+# res = pose_processor.estimate_pose(x, "disable", "disable", "enable")
+# x_pose = res['result'][0].shape
+
+d = {
+    1: 11,
+    2: 22,
+    3: 33,
+}
+
+for k, v in d.items():
+    print(k, v)
