@@ -1,0 +1,4 @@
+"positive": "A realistic person smoking a cigarette, natural mouth movement, smooth inhale and exhale motion, relaxed posture, subtle head movement, clear facial details, warm lighting, cinematic style, straight cigarette."
+"negative": "misidentified cigarette, object confusion, disappearing cigarette, frozen frame, floating cigarettes, distorted cigarette, distorted fingers, unnatural hand gestures, poor smoke physics, facial distortion, blurred details, missing facial features, jerky movements, unrealistic smoke density, cigarette merging with skin, distorted hands, missing fingers, low quality, bad anatomy, unrealistic pose, duplicate, disfigured, poorly drawn."
+"people": "/home/lior/datasets/dms/train/Manual_Full/dss_tolly_smoke/camera_2_00001_room_003643.jpg"
+"cigarette": "None"

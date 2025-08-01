@@ -6,6 +6,7 @@ from .yolov11_pose_det import PatchBox
 from .img_tools import ExtractFirstFrame, EndNode, BlendImage
 from .kpts_similarity import KeypointsSimilarity
 from .extract_similary_webp import ExtractFilesGivenFolder, FindMostSimilarWebp
+from .change_camera_pose import ChangeCameraPose
 
 NODE_CLASS_MAPPINGS = {
     "Cutting Video": ComfyVideoCutting,
@@ -19,6 +20,7 @@ NODE_CLASS_MAPPINGS = {
     "Blend Images": BlendImage,
     "Extract .webp from Folder": ExtractFilesGivenFolder,
     "Find the most similar webp": FindMostSimilarWebp,
+    "Change the camera pose of config file": ChangeCameraPose,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -33,4 +35,5 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "Saul-Plugin": "Blend Images",
     "Saul-Plugin": "Extract .webp from Folder",
     "Saul-Plugin": "Find The Most Similar .webp",
+    "Saul-Plugin": "Change the camera pose of config file",
 }

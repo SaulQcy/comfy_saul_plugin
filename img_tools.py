@@ -40,7 +40,7 @@ class EndNode(ComfyNodeABC):
     OUTPUT_NODE = True
 
     def main(self, any):
-        print("Received input at EndNode:", any)
+        print("Received input at EndNode:", type(any))
         return {}
     
 
