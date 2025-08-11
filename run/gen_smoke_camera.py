@@ -129,7 +129,7 @@ def main(config: DictConfig):
     input_image_path = config.people
 
     img = PIL.Image.open(input_image_path)
-    cam_w = cam_h = 512
+    cam_w = cam_h = 480
 
     x_np = np.array(img).astype(float) / 255.
     x_t = torch.from_numpy(x_np).unsqueeze(0)
@@ -178,7 +178,7 @@ def main(config: DictConfig):
         )
 
         loadimage = NODE_CLASS_MAPPINGS["LoadImage"]()
-        loadimage_52 = loadimage.load_image(image="camera_2_00005_001505.jpg")
+        loadimage_52 = loadimage.load_image(image=input_image_path)
 
         clipvisionencode = NODE_CLASS_MAPPINGS["CLIPVisionEncode"]()
         clipvisionencode_51 = clipvisionencode.encode(

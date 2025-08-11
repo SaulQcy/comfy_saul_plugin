@@ -3,9 +3,6 @@ import random
 import sys
 from typing import Sequence, Mapping, Any, Union
 import torch
-import hydra
-from omegaconf import DictConfig, OmegaConf
-import hydra.version
 
 
 def get_value_at_index(obj: Union[Sequence, Mapping], index: int) -> Any:
@@ -116,32 +113,9 @@ def import_custom_nodes() -> None:
 
 
 from nodes import NODE_CLASS_MAPPINGS
-from custom_nodes.comfy_saul_plugin.vitpose import VitPoseProcess
-import PIL.Image
-import numpy as np
-from custom_nodes.comfy_saul_plugin.change_camera_pose import ChangeCameraPose
 
-@hydra.main(version_base=None, config_path="./config/", config_name="smoke_camera")
-def main(config: DictConfig):
 
-    positive_prompt = config.positive
-    negative_prompt = config.negative
-    input_image_path = config.people
-
-    img = PIL.Image.open(input_image_path)
-    W, H = img.size
-    # if W > 1e3 or H > 1e3:  # 1920, 1280...
-    #     cam_w = 600
-    #     cam_h = 420
-    # else:
-    cam_w = cam_h = 512
-
-    x_np = np.array(img).astype(float) / 255.
-    x_t = torch.from_numpy(x_np).unsqueeze(0)
-    x_pose, _, _ = VitPoseProcess().main(x_t)
-    camera_pose = ChangeCameraPose().main(x_pose)
-    print(camera_pose)
-    
+def main():
     import_custom_nodes()
     with torch.inference_mode():
         cliploader = NODE_CLASS_MAPPINGS["CLIPLoader"]()
@@ -153,113 +127,105 @@ def main(config: DictConfig):
 
         cliptextencode = NODE_CLASS_MAPPINGS["CLIPTextEncode"]()
         cliptextencode_6 = cliptextencode.encode(
-            text=positive_prompt,
+            text="The white dragon warrior stands still, eyes full of determination and strength. The camera slowly moves closer or circles around the warrior, highlighting the powerful presence and heroic spirit of the character.",
             clip=get_value_at_index(cliploader_38, 0),
         )
 
         cliptextencode_7 = cliptextencode.encode(
-            text=negative_prompt,
+            text="色调艳丽，过曝，静态，细节模糊不清，字幕，风格，作品，画作，画面，静止，整体发灰，最差质量，低质量，JPEG压缩残留，丑陋的，残缺的，多余的手指，画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，静止不动的画面，杂乱的背景，三条腿，背景人很多，倒着走",
             clip=get_value_at_index(cliploader_38, 0),
         )
 
         unetloader = NODE_CLASS_MAPPINGS["UNETLoader"]()
         unetloader_37 = unetloader.load_unet(
-            unet_name="wan2.1_fun_camera_v1.1_1.3B_bf16.safetensors",
+            unet_name="wan2.2_i2v_high_noise_14B_fp8_scaled.safetensors",
             weight_dtype="default",
         )
 
         vaeloader = NODE_CLASS_MAPPINGS["VAELoader"]()
         vaeloader_39 = vaeloader.load_vae(vae_name="wan_2.1_vae.safetensors")
 
-        clipvisionloader = NODE_CLASS_MAPPINGS["CLIPVisionLoader"]()
-        clipvisionloader_49 = clipvisionloader.load_clip(
-            clip_name="clip_vision_h.safetensors"
+        unetloader_56 = unetloader.load_unet(
+            unet_name="wan2.2_i2v_low_noise_14B_fp8_scaled.safetensors",
+            weight_dtype="default",
         )
 
         loadimage = NODE_CLASS_MAPPINGS["LoadImage"]()
-        loadimage_52 = loadimage.load_image(image="camera_2_00002_room_004111.jpg")
+        loadimage_62 = loadimage.load_image(image="example.png")
 
-        clipvisionencode = NODE_CLASS_MAPPINGS["CLIPVisionEncode"]()
-        clipvisionencode_51 = clipvisionencode.encode(
-            crop="none",
-            clip_vision=get_value_at_index(clipvisionloader_49, 0),
-            image=get_value_at_index(loadimage_52, 0),
-        )
-
-        wancameraembedding = NODE_CLASS_MAPPINGS["WanCameraEmbedding"]()
-        wancameraembedding_57 = wancameraembedding.run(
-            camera_pose="Pan Left",
-            width=cam_w,
-            height=cam_h,
+        wanimagetovideo = NODE_CLASS_MAPPINGS["WanImageToVideo"]()
+        wanimagetovideo_63 = wanimagetovideo.encode(
+            width=640,
+            height=640,
             length=81,
-            speed=1,
-            fx=0.5,
-            fy=0.5,
-            cx=0.5,
-            cy=0.5,
-        )
-
-        wancameraimagetovideo = NODE_CLASS_MAPPINGS["WanCameraImageToVideo"]()
-        wancameraimagetovideo_56 = wancameraimagetovideo.encode(
-            width=get_value_at_index(wancameraembedding_57, 1),
-            height=get_value_at_index(wancameraembedding_57, 2),
-            length=get_value_at_index(wancameraembedding_57, 3),
             batch_size=1,
             positive=get_value_at_index(cliptextencode_6, 0),
             negative=get_value_at_index(cliptextencode_7, 0),
             vae=get_value_at_index(vaeloader_39, 0),
-            clip_vision_output=get_value_at_index(clipvisionencode_51, 0),
-            start_image=get_value_at_index(loadimage_52, 0),
-            camera_conditions=get_value_at_index(wancameraembedding_57, 0),
+            start_image=get_value_at_index(loadimage_62, 0),
         )
 
         modelsamplingsd3 = NODE_CLASS_MAPPINGS["ModelSamplingSD3"]()
-        ksampler = NODE_CLASS_MAPPINGS["KSampler"]()
+        ksampleradvanced = NODE_CLASS_MAPPINGS["KSamplerAdvanced"]()
         vaedecode = NODE_CLASS_MAPPINGS["VAEDecode"]()
-        smoking_auto_label = NODE_CLASS_MAPPINGS["Smoking Auto Label"]()
-        end_node = NODE_CLASS_MAPPINGS["End Node"]()
-        dwpreprocessor = NODE_CLASS_MAPPINGS["DWPreprocessor"]()
+        createvideo = NODE_CLASS_MAPPINGS["CreateVideo"]()
+        savevideo = NODE_CLASS_MAPPINGS["SaveVideo"]()
 
         for q in range(1):
-            modelsamplingsd3_54 = modelsamplingsd3.patch(
-                shift=8, model=get_value_at_index(unetloader_37, 0)
+            modelsamplingsd3_55 = modelsamplingsd3.patch(
+                shift=8, model=get_value_at_index(unetloader_56, 0)
             )
 
-            ksampler_3 = ksampler.sample(
-                seed=random.randint(1, 2**64),
+            modelsamplingsd3_54 = modelsamplingsd3.patch(
+                shift=8.000000000000002, model=get_value_at_index(unetloader_37, 0)
+            )
+
+            ksampleradvanced_57 = ksampleradvanced.sample(
+                add_noise="enable",
+                noise_seed=random.randint(1, 2**64),
                 steps=20,
-                cfg=6,
-                sampler_name="uni_pc",
+                cfg=3.5,
+                sampler_name="euler",
                 scheduler="simple",
-                denoise=1,
+                start_at_step=0,
+                end_at_step=10,
+                return_with_leftover_noise="enable",
                 model=get_value_at_index(modelsamplingsd3_54, 0),
-                positive=get_value_at_index(wancameraimagetovideo_56, 0),
-                negative=get_value_at_index(wancameraimagetovideo_56, 1),
-                latent_image=get_value_at_index(wancameraimagetovideo_56, 2),
+                positive=get_value_at_index(wanimagetovideo_63, 0),
+                negative=get_value_at_index(wanimagetovideo_63, 1),
+                latent_image=get_value_at_index(wanimagetovideo_63, 2),
+            )
+
+            ksampleradvanced_58 = ksampleradvanced.sample(
+                add_noise="disable",
+                noise_seed=random.randint(1, 2**64),
+                steps=20,
+                cfg=3.5,
+                sampler_name="euler",
+                scheduler="simple",
+                start_at_step=10,
+                end_at_step=10000,
+                return_with_leftover_noise="disable",
+                model=get_value_at_index(modelsamplingsd3_55, 0),
+                positive=get_value_at_index(wanimagetovideo_63, 0),
+                negative=get_value_at_index(wanimagetovideo_63, 1),
+                latent_image=get_value_at_index(ksampleradvanced_57, 0),
             )
 
             vaedecode_8 = vaedecode.decode(
-                samples=get_value_at_index(ksampler_3, 0),
+                samples=get_value_at_index(ksampleradvanced_58, 0),
                 vae=get_value_at_index(vaeloader_39, 0),
             )
 
-            smoking_auto_label_63 = smoking_auto_label.main(
-                image_in=get_value_at_index(vaedecode_8, 0)
+            createvideo_60 = createvideo.create_video(
+                fps=16, images=get_value_at_index(vaedecode_8, 0)
             )
 
-            end_node_64 = end_node.main(
-                any=get_value_at_index(smoking_auto_label_63, 0)
-            )
-
-            dwpreprocessor_65 = dwpreprocessor.estimate_pose(
-                detect_hand="disable",
-                detect_body="disable",
-                detect_face="enable",
-                resolution=512,
-                bbox_detector="yolox_l.onnx",
-                pose_estimator="dw-ll_ucoco_384_bs5.torchscript.pt",
-                scale_stick_for_xinsr_cn="disable",
-                image=get_value_at_index(loadimage_52, 0),
+            savevideo_61 = savevideo.save_video(
+                filename_prefix="video/ComfyUI",
+                format="auto",
+                codec="auto",
+                video=get_value_at_index(createvideo_60, 0),
             )
 
 

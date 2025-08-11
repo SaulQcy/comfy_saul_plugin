@@ -49,8 +49,8 @@ class SmokingAutoLabel(ComfyNodeABC):
             else:
                 raise ValueError(f"Expected 4D tensor, got {image_in.dim()}D")
         print(f"In frames: {image_in.shape[0]}")
-        if image_in.shape[0] > 20:  # avoid tensor shape like [0, H, W, C]
-            image_in = image_in[int(image_in.shape[0] * P_START):-int(image_in.shape[0] * P_END)]
+        # if image_in.shape[0] > 20:  # avoid tensor shape like [0, H, W, C]
+        #     image_in = image_in[int(image_in.shape[0] * P_START):-int(image_in.shape[0] * P_END)]
         print(f"Out frames: {image_in.shape[0]}")
 
         # load model
