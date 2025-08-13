@@ -1,0 +1,14 @@
+json_file_path: /home/saul/AIGC/json/video_wan2_2_14B_i2v.json
+positive: A person smoking a cigarette with subtle movement — a slight head tilt,
+  a gentle hand gesture, soft facial expression changes. Do not change the cigarette
+  shape and length.
+negative: Change the cigarette shape and length. The cigarette is too long, misidentified
+  cigarette, object confusion, disappearing cigarette, floating cigarettes, distorted
+  cigarette, distorted fingers, unnatural hand gestures, poor smoke physics, facial
+  distortion, blurred details, missing facial features, jerky movements, unrealistic
+  smoke density, cigarette merging with skin, distorted hands, missing fingers, low
+  quality, bad anatomy, unrealistic pose, duplicate, disfigured, poorly drawn, too
+  many fingers, extra fingers, fused fingers, twisted fingers, hand merging with cigarette,
+  finger growing from cigarette, anatomical error, malformed hand, glitchy joints,
+  unrealistic hand proportions, wrong finger count, merged geometry.
+people: /home/lior/datasets/dms/train/Manual_Full/ROSCO15W_smoke/day-1/3123516988-31413506-2.jpeg

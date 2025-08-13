@@ -1,9 +1,17 @@
 import torch.nn as nn
 
+# DETECT_CLASSES = (
+#     "smoke",
+#     "phone", 
+#     "antistatic_cap"
+# )
+
 DETECT_CLASSES = (
-    "smoke",
-    "phone", 
-    "antistatic_cap"
+    "phone",
+    "smoke", 
+    "cup",
+    "cap",
+    "helmet"
 )
 
 class Exp(object):
@@ -18,8 +26,8 @@ class Exp(object):
                     m.eps = 1e-3
                     m.momentum = 0.03
         if "model" not in self.__dict__:
-            from .models import YOLOFPN, YOLOXHead, YOLOX
-            backbone = YOLOFPN()
+            from .models import YOLOFPN, YOLOFPN_DMS, YOLOXHead, YOLOX
+            backbone = YOLOFPN_DMS()
             head = YOLOXHead(self.num_classes, self.width, in_channels=[128, 128, 128], act="relu")
             self.model = YOLOX(backbone, head)
         self.model.apply(init_yolo)
