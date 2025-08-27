@@ -1,0 +1,7 @@
+json_file_path: /home/saul/AIGC/json/video_wan2_2_14B_i2v.json
+task: cup
+positive: A realistic video of a person holding a cup, swiftly and decisively bringing it toward their mouth as if about to drink, energetic and powerful motion, slight acceleration near the end, dynamic body movement, natural hand grip, clear liquid in the cup, straight and perfectly shaped cup, subtle camera shake for impact, cinematic action emphasis, detailed facial expression, realistic lighting, high resolution, 4k, sharp focus
+
+negative: blurry, low resolution, pixelated, multiple people, extra hands, fused hands and face, fused figure and hands, deformed fingers, unnatural face, distorted cup, bent cup, melted cup, misshapen cup, cup with irregular edges, overexposed, underexposed, bad anatomy, unrealistic proportions, unwanted motion blur, double faces, cartoon, drawing, illustration, CGI, text, watermark
+
+people: /home/saul/Lior/cup/iter_2507/1D3013B96DC27BD41ADE29D73AC2CDB4@Fatigue@1745663401@3@7FA55F170E69C464AFCDBF5D55AD340E.jpg

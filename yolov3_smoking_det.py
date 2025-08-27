@@ -14,12 +14,15 @@ from custom_nodes.comfy_saul_plugin.img_tools import get_folder_file_name
 import hydra
 from omegaconf import DictConfig, OmegaConf
 
-SCORE_THRESHOLD=0.6
+SCORE_THRESHOLD=0.01
 P_START=0.1
 P_END=0.1
 CONFIG_PATH = "/home/saul/comfy/ComfyUI/custom_nodes/comfy_saul_plugin/run/config/default.yaml"
 PATH = f'/home/saul/AIGC/generated_data/'
-REQUIRED_CLASSES = ["smoke", "cup"]
+REQUIRED_CLASSES = ["smoke", "cup", "cap", "phone", "helmet"]
+AUTO_LABEL_PATH = '/home/saul/comfy/ComfyUI/models/saul_model/best_ckpt_pscch.pth'
+MEAN = [0.485, 0.456, 0.406]
+STD = [0.229, 0.224, 0.225]
 
 class SmokingAutoLabel(ComfyNodeABC):
 
@@ -63,7 +66,7 @@ class SmokingAutoLabel(ComfyNodeABC):
         # load model
         exp = Exp()
         model = exp.get_model()
-        model_path = '/home/saul/comfy/ComfyUI/models/saul_model/best_ckpt_pscch.pth'
+        model_path = AUTO_LABEL_PATH
         model.load_state_dict(torch.load(model_path)["model"], strict=False)
         model.eval()
         model.cuda()
@@ -77,11 +80,8 @@ class SmokingAutoLabel(ComfyNodeABC):
             img_padding.append(tmp)
         img_padding = torch.stack(img_padding, dim=0)  # [N, H
 
-        mean = [0.485, 0.456, 0.406]
-        std = [0.229, 0.224, 0.225]
-
-        mean = [v for v in mean]
-        std = [v for v in std]
+        mean = [v for v in MEAN]
+        std = [v for v in STD]
         img_padding = Normalize(mean, std)(img_padding.permute(0, 3, 1, 2))  # [N, C, H, W]
         img_padding = img_padding.permute(0, 2, 3, 1)  # [N, H, W, C]
 
@@ -99,15 +99,13 @@ class SmokingAutoLabel(ComfyNodeABC):
             results.append(out.cpu()) 
         res = torch.cat(results, dim=0)
 
-        outputs = postprocess(
-            res, len(DETECT_CLASSES), 0.3, 0.3, class_agnostic=True
-        )
+        outputs = postprocess(res, len(DETECT_CLASSES), 0.3, 0.3, class_agnostic=True)
         # print(outputs)
         x0, x1, y0, y1 = 0, H, 0, W
         res = []
         cfg = OmegaConf.load(CONFIG_PATH)
         root_path = f'{PATH}/{cfg.task}/{get_folder_file_name()}'
-        os.makedirs(root_path, exist_ok=False)
+        os.makedirs(root_path, exist_ok=True)
         for i in range(len(outputs)):
             x = image_in[i]
             y = outputs[i]
@@ -129,7 +127,7 @@ class SmokingAutoLabel(ComfyNodeABC):
                     print(f"Found {cls_str[j]} in {j}, score: {scores[j]}")
                     smoke_cup_flag = (scores[j] > SCORE_THRESHOLD) or (smoke_cup_flag)
             if smoke_cup_flag == False:
-                print(f"Skip image {i} because of low score: {scores}")
+                print(f"Skip image {i} because of low score: {scores}, corresponding classes: {cls_str}")
                 continue
 
             x = np.array(x)
